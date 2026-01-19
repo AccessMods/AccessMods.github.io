@@ -121,9 +121,9 @@ def get_org_data():
     """
 
 def convert_md(text):
-    # Use Pandoc to convert text to HTML. 
-    # 'utf-8-sig' reading + Pandoc is the strongest possible fix for Windows issues.
-    return pypandoc.convert_text(text, 'html', format='markdown')
+    # USE GFM (GitHub Flavored Markdown)
+    # This is the industry standard for headers and robust parsing.
+    return pypandoc.convert_text(text, 'html', format='gfm')
 
 def build():
     env = Environment(loader=FileSystemLoader('templates'))

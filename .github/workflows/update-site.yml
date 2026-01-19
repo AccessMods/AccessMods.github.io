@@ -23,7 +23,8 @@ jobs:
           python-version: '3.9'
 
       - name: Install Dependencies
-        run: pip install requests jinja2 markdown beautifulsoup4
+        # THIS WAS THE PROBLEM. Now it reads from your file.
+        run: pip install -r requirements.txt
 
       - name: Run Builder
         env:
@@ -34,5 +35,5 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./public  # CHANGED: Only publish the clean output
+          publish_dir: ./public
           publish_branch: gh-pages

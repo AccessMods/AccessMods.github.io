@@ -15,15 +15,14 @@ jobs:
       contents: write
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4 # Updated to v4 (Current standard)
 
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5 # Updated to v5
         with:
-          python-version: '3.9'
+          python-version: '3.12' # Modern stable version
 
       - name: Install Dependencies
-        # THIS WAS THE PROBLEM. Now it reads from your file.
         run: pip install -r requirements.txt
 
       - name: Run Builder

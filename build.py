@@ -1,8 +1,9 @@
 import os
+import re
 import requests
 import markdown
-import textwrap
 import shutil
+import textwrap
 from bs4 import BeautifulSoup
 from jinja2 import Environment, FileSystemLoader
 
@@ -14,7 +15,6 @@ HEADERS = {
 }
 JSON_HEADERS = {"Authorization": f"token {GITHUB_TOKEN}"}
 
-# Create a clean output directory
 OUTPUT_DIR = "public"
 if os.path.exists(OUTPUT_DIR):
     shutil.rmtree(OUTPUT_DIR)
@@ -122,11 +122,26 @@ def get_org_data():
     {cats['lib'] or '<p>No libraries found.</p>'}
     """
 
-def convert_md(text):
-    # Aggressively clean the input
-    clean_text = textwrap.dedent(text).strip()
-    # Force conversion
-    return markdown.markdown(clean_text)
+def clean_and_convert(text):
+    """
+    Nuclear option to fix bad markdown formatting.
+    1. Normalizes newlines.
+    2. Strips leading whitespace from headers (e.g., "  # Header" -> "# Header")
+    3. Adds missing space after hash (e.g., "#Header" -> "# Header")
+    """
+    # Fix 1: Normalize newlines
+    text = text.replace('\r\n', '\n')
+    
+    # Fix 2: Remove indentation before headers
+    text = re.sub(r'^[ \t]+#', '#', text, flags=re.MULTILINE)
+    
+    # Fix 3: Ensure space after hash
+    text = re.sub(r'^(#+)([^ \t#\n])', r'\1 \2', text, flags=re.MULTILINE)
+    
+    # Fix 4: Ensure empty lines around headers (Markdown requirement)
+    text = re.sub(r'(\n#+\s.*)', r'\n\1\n', text)
+
+    return markdown.markdown(text.strip())
 
 def build():
     env = Environment(loader=FileSystemLoader('templates'))
@@ -137,9 +152,9 @@ def build():
     # 1. Build Index
     intro_html = ""
     if os.path.exists('content/index.md'):
-        # utf-8-sig removes the BOM that causes the <p># Welcome</p> bug
         with open('content/index.md', 'r', encoding="utf-8-sig") as f:
-            intro_html = convert_md(f.read())
+            # Use the new cleaner function
+            intro_html = clean_and_convert(f.read())
             
     with open(f'{OUTPUT_DIR}/index.html', 'w', encoding="utf-8") as f:
         f.write(template.render(title="Home", content=intro_html + repo_data, nav_links=nav_links))
@@ -150,7 +165,7 @@ def build():
             if filename == 'index.md': continue
             if filename.endswith('.md'):
                 with open(f'content/{filename}', 'r', encoding="utf-8-sig") as f:
-                    html_content = convert_md(f.read())
+                    html_content = clean_and_convert(f.read())
                     page_name = filename.replace('.md', '').replace('-', ' ').title()
                     
                     with open(f'{OUTPUT_DIR}/{filename.replace(".md", ".html")}', 'w', encoding="utf-8") as w:

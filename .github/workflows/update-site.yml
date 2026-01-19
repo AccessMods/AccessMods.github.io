@@ -17,8 +17,7 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # THIS IS THE MISSING PIECE
-      - name: Install Pandoc (System Binary)
+      - name: Install Pandoc
         run: sudo apt-get update && sudo apt-get install -y pandoc
 
       - name: Setup Python

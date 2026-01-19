@@ -2,11 +2,11 @@ name: Update Website
 
 on:
   schedule:
-    - cron: '0 0 * * *' # Midnight UTC
+    - cron: '0 0 * * *'
   workflow_dispatch: 
   push:
     branches:
-      - main # Triggers when you push to the website repo
+      - main
 
 jobs:
   build-and-deploy:
@@ -23,7 +23,7 @@ jobs:
           python-version: '3.9'
 
       - name: Install Dependencies
-        run: pip install requests jinja2 markdown
+        run: pip install requests jinja2 markdown beautifulsoup4
 
       - name: Run Builder
         env:
@@ -34,5 +34,5 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./
+          publish_dir: ./public  # CHANGED: Only publish the clean output
           publish_branch: gh-pages

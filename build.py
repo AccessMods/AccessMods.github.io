@@ -1,16 +1,24 @@
 import os
 import requests
 import markdown
+import textwrap
+import shutil
+from bs4 import BeautifulSoup
 from jinja2 import Environment, FileSystemLoader
 
 ORG_NAME = "AccessMods"
 GITHUB_TOKEN = os.environ.get('GH_TOKEN')
-# Header to get pre-rendered HTML from GitHub (Reliable, no regex)
 HEADERS = {
     "Authorization": f"token {GITHUB_TOKEN}",
     "Accept": "application/vnd.github.html" 
 }
 JSON_HEADERS = {"Authorization": f"token {GITHUB_TOKEN}"}
+
+# Create a clean output directory
+OUTPUT_DIR = "public"
+if os.path.exists(OUTPUT_DIR):
+    shutil.rmtree(OUTPUT_DIR)
+os.makedirs(OUTPUT_DIR)
 
 def get_dynamic_nav():
     nav_links = [{"title": "Home", "url": "index.html"}]
@@ -23,9 +31,6 @@ def get_dynamic_nav():
     return nav_links
 
 def get_full_readme_html(repo_name):
-    """
-    Fetches the full, rendered HTML of the README.
-    """
     try:
         url = f"https://api.github.com/repos/{ORG_NAME}/{repo_name}/readme"
         resp = requests.get(url, headers=HEADERS)
@@ -80,10 +85,7 @@ def get_org_data():
         except:
             buttons_html = f'<a href="{repo["html_url"]}" class="btn secondary">View on GitHub</a>'
 
-        # Get Full Readme
         readme_html = get_full_readme_html(repo['name'])
-        
-        # Build Description Block
         short_desc = repo['description'] or "No description provided."
         
         details_block = ""
@@ -120,32 +122,41 @@ def get_org_data():
     {cats['lib'] or '<p>No libraries found.</p>'}
     """
 
+def convert_md(text):
+    # Aggressively clean the input
+    clean_text = textwrap.dedent(text).strip()
+    # Force conversion
+    return markdown.markdown(clean_text)
+
 def build():
     env = Environment(loader=FileSystemLoader('templates'))
     template = env.get_template('base.html')
     nav_links = get_dynamic_nav()
-    
-    # Build Index
     repo_data = get_org_data()
+    
+    # 1. Build Index
     intro_html = ""
     if os.path.exists('content/index.md'):
-        # utf-8-sig handles the Windows Notepad BOM issue
+        # utf-8-sig removes the BOM that causes the <p># Welcome</p> bug
         with open('content/index.md', 'r', encoding="utf-8-sig") as f:
-            intro_html = markdown.markdown(f.read())
+            intro_html = convert_md(f.read())
             
-    with open('index.html', 'w', encoding="utf-8") as f:
+    with open(f'{OUTPUT_DIR}/index.html', 'w', encoding="utf-8") as f:
         f.write(template.render(title="Home", content=intro_html + repo_data, nav_links=nav_links))
 
-    # Build Pages
+    # 2. Build Pages
     if os.path.exists('content'):
         for filename in os.listdir('content'):
             if filename == 'index.md': continue
             if filename.endswith('.md'):
                 with open(f'content/{filename}', 'r', encoding="utf-8-sig") as f:
-                    with open(filename.replace('.md', '.html'), 'w', encoding="utf-8") as w:
+                    html_content = convert_md(f.read())
+                    page_name = filename.replace('.md', '').replace('-', ' ').title()
+                    
+                    with open(f'{OUTPUT_DIR}/{filename.replace(".md", ".html")}', 'w', encoding="utf-8") as w:
                         w.write(template.render(
-                            title=filename.replace('.md','').title(), 
-                            content=markdown.markdown(f.read()), 
+                            title=page_name, 
+                            content=html_content, 
                             nav_links=nav_links
                         ))
 

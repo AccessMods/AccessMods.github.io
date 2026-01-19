@@ -4,6 +4,9 @@ on:
   schedule:
     - cron: '0 0 * * *' # Midnight UTC
   workflow_dispatch: 
+  push:
+    branches:
+      - main # Triggers when you push to the website repo
 
 jobs:
   build-and-deploy:

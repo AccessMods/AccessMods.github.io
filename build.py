@@ -1,9 +1,9 @@
 import os
 import requests
+import pypandoc
 import shutil
 from bs4 import BeautifulSoup
 from jinja2 import Environment, FileSystemLoader
-from markdown_it import MarkdownIt
 
 ORG_NAME = "AccessMods"
 GITHUB_TOKEN = os.environ.get('GH_TOKEN')
@@ -17,15 +17,6 @@ OUTPUT_DIR = "public"
 if os.path.exists(OUTPUT_DIR):
     shutil.rmtree(OUTPUT_DIR)
 os.makedirs(OUTPUT_DIR)
-
-# Initialize the modern parser
-# 'commonmark' preset ensures it behaves like GitHub/VS Code
-md = MarkdownIt('commonmark').enable('table')
-
-def convert_md(text):
-    # Just render it. No regex hacks needed. 
-    # MarkdownIt handles whitespace gracefully.
-    return md.render(text)
 
 def get_dynamic_nav():
     nav_links = [{"title": "Home", "url": "index.html"}]
@@ -128,6 +119,11 @@ def get_org_data():
     <p>Libraries and code for mod creators.</p>
     {cats['lib'] or '<p>No libraries found.</p>'}
     """
+
+def convert_md(text):
+    # Use Pandoc to convert text to HTML
+    # format='md' handles standard markdown
+    return pypandoc.convert_text(text, 'html', format='md')
 
 def build():
     env = Environment(loader=FileSystemLoader('templates'))

@@ -1,4 +1,4 @@
 requests
 jinja2
 beautifulsoup4
-markdown-it-py
+pypandoc

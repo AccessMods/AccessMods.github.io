@@ -15,12 +15,16 @@ jobs:
       contents: write
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4 # Updated to v4 (Current standard)
+        uses: actions/checkout@v4
+
+      # THIS IS THE MISSING PIECE
+      - name: Install Pandoc (System Binary)
+        run: sudo apt-get update && sudo apt-get install -y pandoc
 
       - name: Setup Python
-        uses: actions/setup-python@v5 # Updated to v5
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.12' # Modern stable version
+          python-version: '3.12'
 
       - name: Install Dependencies
         run: pip install -r requirements.txt

@@ -27,6 +27,15 @@
         .btn.secondary { background: #444; }
         .version-tag { background: #444; padding: 2px 6px; font-size: 0.75em; border-radius: 4px; color: #ccc; font-weight: normal; vertical-align: middle; margin-left: 8px; }
 
+        /* Readme Expander */
+        details { margin-top: 15px; border-top: 1px solid #444; padding-top: 10px; }
+        summary { cursor: pointer; color: #8ab4f8; font-weight: bold; margin-bottom: 10px; }
+        summary:hover { text-decoration: underline; }
+        .readme-content { background: #222; padding: 15px; border-radius: 5px; overflow-x: auto; font-size: 0.9em; }
+        .readme-content img { max-width: 100%; }
+        .readme-content h1, .readme-content h2 { border-bottom: none; font-size: 1.2em; margin-top: 1em; }
+        .readme-content pre { background: #111; padding: 10px; overflow-x: auto; border-radius: 4px; }
+
         /* Footer */
         footer { margin-top: 50px; border-top: 1px solid #444; padding-top: 20px; font-size: 0.9em; color: #888; }
     </style>
@@ -52,8 +61,8 @@
     <footer>
         <p>
             <strong>Missing something?</strong><br>
-            If you see a mod missing from this list, it likely means the repository is missing the <code>game-mod</code> topic. 
-            If you encounter errors or broken links, please <a href="PUT_YOUR_DISCORD_LINK_HERE">contact us on Discord</a> or open an issue on the <a href="https://github.com/AccessMods/.github">Configuration Repo</a>.
+            If you see a mod missing from this list, it likely means the repository is missing the <code>game-mod</code>, <code>utility</code>, or <code>library</code> topic. 
+            If you encounter errors or broken links, please <a href="PUT_YOUR_DISCORD_LINK_HERE">contact us on Discord</a>.
         </p>
         <p>Maintained by the AccessMods Community.</p>
     </footer>

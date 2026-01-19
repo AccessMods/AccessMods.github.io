@@ -1,3 +1,4 @@
 requests
 jinja2
-markdown
+beautifulsoup4
+markdown-it-py
